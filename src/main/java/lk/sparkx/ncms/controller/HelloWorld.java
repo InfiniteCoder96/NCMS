@@ -65,7 +65,8 @@ public class HelloWorld extends HttpServlet
      * @param data
      * @param resp
      * @throws IOException
-     */
+     *
+     **/
     private void sendResponse(String data, HttpServletResponse resp) throws IOException
     {
         resp.setContentType("application/json");
