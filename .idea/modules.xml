@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Servlets.iml" filepath="$PROJECT_DIR$/Servlets.iml" />
+      <module fileurl="file://$PROJECT_DIR$/NCMS.iml" filepath="$PROJECT_DIR$/NCMS.iml" />
     </modules>
   </component>
 </project>

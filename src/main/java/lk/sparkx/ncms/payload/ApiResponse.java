@@ -14,8 +14,8 @@ import lombok.Setter;
  *  2020-08-30 14.01 PASINDU - Added Lombok dependency and annotations
  **/
 @Getter @Setter @NoArgsConstructor
-public class ApiResponse
+public class ApiResponse<E>
 {
     private String success;
-    private String response;
+    private E response;
 }

@@ -19,6 +19,16 @@
         <servlet-class>lk.sparkx.ncms.controller.db.DBController</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>Patient</servlet-name>
+        <servlet-class>lk.sparkx.ncms.controller.PatientController</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>Hospital</servlet-name>
+        <servlet-class>lk.sparkx.ncms.controller.HospitalController</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>HelloWorld</servlet-name>
         <url-pattern>/hello</url-pattern>
@@ -32,6 +42,16 @@
     <servlet-mapping>
         <servlet-name>DBMigration</servlet-name>
         <url-pattern>/dbmigrate</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>Patient</servlet-name>
+        <url-pattern>/patients/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>Hospital</servlet-name>
+        <url-pattern>/hospitals/*</url-pattern>
     </servlet-mapping>
 
 </web-app>

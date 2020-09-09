@@ -6,11 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="Servlets" />
+        <module name="NCMS" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="Servlets" target="7" />
+      <module name="NCMS" target="7" />
     </bytecodeTargetLevel>
   </component>
 </project>
