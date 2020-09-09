@@ -36,6 +36,8 @@ public class Helper {
 
     // Patient Queries
     public static final String INSERT_PATIENT = "INSERT INTO "+ TABLE_PATIENTS +" (id, first_name, last_name, district, location_x, location_y, severity_level, gender, contact, email, age) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+    public static final String ADMIT_PATIENT = "UPDATE "+ TABLE_PATIENTS +" SET severity_level=?, admit_date=?, admitted_by=? WHERE id=?";
+    public static final String DISCHARGE_PATIENT = "UPDATE "+ TABLE_PATIENTS +" SET severity_level=?, discharge_date=?, discharged_by=? WHERE id=?";
     public static final String GET_PATIENT_COUNT = "SELECT COUNT(id) AS PATIENT_COUNT FROM " + TABLE_PATIENTS;
     public static final String GET_PATIENT_DETAILS = "SELECT * FROM " + TABLE_PATIENTS + " WHERE id=?";
     public static final String GET_ALL_ACTIVE_PATIENTS = "SELECT * FROM " + TABLE_PATIENTS;
@@ -50,4 +52,7 @@ public class Helper {
     // Hospital Bed Queries
     public static final String CHECK_TABLE_IS_EMPTY = "SELECT COUNT(*) AS rows FROM " + TABLE_HOSPITAL_BED;
     public static final String GET_AVAILABLE_HOSPITALS = "SELECT COUNT(*) AS beds, hospital_id  FROM " + TABLE_HOSPITAL_BED + " GROUP BY hospital_id HAVING COUNT(*) < 10";
+
+    // Doctor Queries
+    public static final String ADD_NEW_DOCTOR = "INSERT INTO " + TABLE_DOCTORS + " (name, hospital_id, is_director) VALUES (?,?,?)";
 }

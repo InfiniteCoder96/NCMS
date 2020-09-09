@@ -32,6 +32,11 @@ public class HospitalService {
             e.printStackTrace();
             return false;
         }
+        finally
+        {
+            DBConnectionPool.getInstance().close(stmt);
+            DBConnectionPool.getInstance().close(con);
+        }
     }
 
     public List<String> getAvailableHospitals(){
@@ -55,6 +60,11 @@ public class HospitalService {
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
+        }
+        finally
+        {
+            DBConnectionPool.getInstance().close(stmt);
+            DBConnectionPool.getInstance().close(con);
         }
     }
 
@@ -89,6 +99,11 @@ public class HospitalService {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        finally
+        {
+            DBConnectionPool.getInstance().close(stmt);
+            DBConnectionPool.getInstance().close(con);
+        }
 
         return coordinates;
     }
@@ -120,6 +135,11 @@ public class HospitalService {
             e.printStackTrace();
             return null;
         }
+        finally
+        {
+            DBConnectionPool.getInstance().close(stmt);
+            DBConnectionPool.getInstance().close(con);
+        }
     }
 
     public boolean addNewHospital(Hospital newHospital) {
@@ -144,6 +164,10 @@ public class HospitalService {
             e.printStackTrace();
             return false;
         }
-
+        finally
+        {
+            DBConnectionPool.getInstance().close(stmt);
+            DBConnectionPool.getInstance().close(con);
+        }
     }
 }

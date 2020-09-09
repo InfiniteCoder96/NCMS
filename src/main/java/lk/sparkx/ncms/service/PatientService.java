@@ -8,6 +8,7 @@ import lk.sparkx.ncms.repository.PatientRepository;
 import lk.sparkx.ncms.utils.Helper;
 
 import java.sql.*;
+import java.sql.Date;
 import java.util.*;
 
 public class PatientService implements PatientRepository {
@@ -98,6 +99,11 @@ public class PatientService implements PatientRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        finally
+        {
+            DBConnectionPool.getInstance().close(stmt);
+            DBConnectionPool.getInstance().close(con);
+        }
 
         return patientSerialNo;
     }
@@ -130,16 +136,49 @@ public class PatientService implements PatientRepository {
                 patient.setEmail(rs.getString("email"));
                 patient.setAge(rs.getInt("age"));
                 patient.setAdmitDate(rs.getDate("admit_date"));
-                patient.setAdmittedBy(rs.getString("admitted_by"));
+                patient.setAdmittedBy(rs.getInt("admitted_by"));
                 patient.setDischargeDate(rs.getDate("discharge_date"));
-                patient.setDischargedBy(rs.getString("discharged_by"));
+                patient.setDischargedBy(rs.getInt("discharged_by"));
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        finally
+        {
+            DBConnectionPool.getInstance().close(stmt);
+            DBConnectionPool.getInstance().close(con);
+        }
 
         return patient;
+    }
+
+    @Override
+    public boolean dischargePatient(Patient patient) {
+        Connection con = null;
+        PreparedStatement stmt = null;
+        try
+        {
+            con = DBConnectionPool.getInstance().getConnection();
+            stmt = con.prepareStatement(Helper.DISCHARGE_PATIENT);
+            stmt.setString(1, patient.getSeverityLevel().getName());
+            stmt.setDate(2, patient.getDischargeDate());
+            stmt.setInt(3, patient.getDischargedBy());
+            stmt.setString(4, patient.getId());
+
+            int changedRows = stmt.executeUpdate();
+            return (changedRows == 1);
+        }
+        catch(SQLException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+        finally
+        {
+            DBConnectionPool.getInstance().close(stmt);
+            DBConnectionPool.getInstance().close(con);
+        }
     }
 
     public List<Patient> getAllPatients() {
@@ -169,13 +208,18 @@ public class PatientService implements PatientRepository {
                 patient.setEmail(rs.getString("email"));
                 patient.setAge(rs.getInt("age"));
                 patient.setAdmitDate(rs.getDate("admit_date"));
-                patient.setAdmittedBy(rs.getString("admitted_by"));
+                patient.setAdmittedBy(Integer.parseInt(rs.getString("admitted_by")));
 
                 patientList.add(patient);
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        finally
+        {
+            DBConnectionPool.getInstance().close(stmt);
+            DBConnectionPool.getInstance().close(con);
         }
 
         return patientList;
@@ -208,10 +252,12 @@ public class PatientService implements PatientRepository {
     }
 
     private int getNearestHospital(Map<Integer, int[]> coordinates, int patientLocX, int patientLocY){
+
         Map<Integer, Double> distances = new HashMap<>();
 
         assert coordinates != null;
         for (Map.Entry<Integer, int[]> entry: coordinates.entrySet()) {
+            System.out.println(entry.getKey() + "/" + entry.getValue()[0] + "/" + entry.getValue()[1]);
             distances.put(entry.getKey(), Math.sqrt((entry.getValue()[0]-patientLocX)*(entry.getValue()[0]-patientLocX) + (entry.getValue()[1]-patientLocY)*(entry.getValue()[1]-patientLocY)));
         }
 
@@ -235,5 +281,32 @@ public class PatientService implements PatientRepository {
         Map.Entry<Integer, Double> entry = temp.entrySet().iterator().next();
 
         return entry.getKey();
+    }
+
+    public boolean admitPatient(Patient patient) {
+        Connection con = null;
+        PreparedStatement stmt = null;
+        try
+        {
+            con = DBConnectionPool.getInstance().getConnection();
+            stmt = con.prepareStatement(Helper.ADMIT_PATIENT);
+            stmt.setString(1, patient.getSeverityLevel().getName());
+            stmt.setDate(2, patient.getAdmitDate());
+            stmt.setInt(3, patient.getAdmittedBy());
+            stmt.setString(4, patient.getId());
+
+            int changedRows = stmt.executeUpdate();
+            return (changedRows == 1);
+        }
+        catch(SQLException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+        finally
+        {
+            DBConnectionPool.getInstance().close(stmt);
+            DBConnectionPool.getInstance().close(con);
+        }
     }
 }

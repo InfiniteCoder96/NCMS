@@ -6,4 +6,5 @@ public interface PatientRepository{
     public boolean registerPatient(Patient patient);
     public String generatePatientSerialNo();
     Patient getPatient(String patientIdOrSerialNo);
+    boolean dischargePatient(Patient patient);
 }

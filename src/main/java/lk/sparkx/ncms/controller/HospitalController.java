@@ -38,10 +38,10 @@ public class HospitalController extends HttpServlet {
             String Command = request.getParameter("command");
 
             switch(Command){
-                case "GET_DOCTOR":
+                case "GET_HOSPITAL":
                     getHospital(request,response);
                     break;
-                case "GET_ALL_DOCTORS":
+                case "GET_ALL_HOSPITALS":
                     getAllHospitals(request,response);
                     break;
             }
