@@ -1,8 +1,6 @@
 package lk.sparkx.ncms.controller.db;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import lk.sparkx.ncms.repository.ObjectRepo;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;

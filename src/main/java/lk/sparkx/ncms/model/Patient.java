@@ -2,7 +2,9 @@ package lk.sparkx.ncms.model;
 
 import lombok.Getter;
 import lombok.Setter;
-import java.util.Date;
+
+import java.sql.Date;
+
 
 @Getter @Setter
 public class Patient {
@@ -18,7 +20,7 @@ public class Patient {
     private String email;
     private int age;
     private Date admitDate;
-    private String admittedBy;
+    private int admittedBy;
     private Date dischargeDate;
-    private String dischargedBy;
+    private int dischargedBy;
 }

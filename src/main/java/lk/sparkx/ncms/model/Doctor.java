@@ -8,5 +8,5 @@ public class Doctor {
     private String id;
     private String name;
     private String hospitalId;
-    private Boolean isDirector;
+    private int isDirector;
 }

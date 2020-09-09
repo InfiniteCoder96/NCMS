@@ -1,13 +1,8 @@
 package lk.sparkx.ncms.controller.db;
 
-import com.google.gson.JsonObject;
-import lk.sparkx.ncms.payload.ApiResponse;
 import lk.sparkx.ncms.utils.Helper;
 import org.apache.commons.dbcp2.BasicDataSource;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 

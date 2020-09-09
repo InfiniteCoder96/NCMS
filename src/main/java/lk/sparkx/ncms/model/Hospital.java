@@ -7,10 +7,10 @@ import java.sql.Date;
 
 @Getter @Setter
 public class Hospital {
-    private String id;
+    private int id;
     private String name;
     private String district;
-    private double locationX;
-    private double locationY;
+    private int locationX;
+    private int locationY;
     private Date buildDate;
 }

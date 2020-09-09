@@ -1,28 +1,19 @@
 package lk.sparkx.ncms.controller;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import lk.sparkx.ncms.model.Gender;
 import lk.sparkx.ncms.model.Patient;
 import lk.sparkx.ncms.model.SeverityLevel;
-import lk.sparkx.ncms.payload.ApiResponse;
 import lk.sparkx.ncms.service.PatientService;
-import lk.sparkx.ncms.utils.JsonConverter;
-import lombok.var;
+import lk.sparkx.ncms.utils.Utility;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.UUID;
 
 @WebServlet(name = "Patient")
 public class PatientController extends HttpServlet {
@@ -37,6 +28,13 @@ public class PatientController extends HttpServlet {
                 case "REGISTER_PATIENT":
                    registerPatient(request,response);
                    break;
+                case "ADMIT_PATIENT":
+                    admitPatient(request,response);
+                    break;
+                case "DISCHARGE_PATIENT":
+                    dischargePatient(request,response);
+                    break;
+
             }
         }
         catch(Exception e) {
@@ -64,14 +62,14 @@ public class PatientController extends HttpServlet {
 
     private void getAllActivePatients(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String patientList = new Gson().toJson(patientService.getAllPatients());
-        sendResponse(patientList, response);
+        Utility.sendResponse(patientList, response);
     }
 
     private void getPatient(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String patientIdOrSerialNo = request.getParameter("patientId");
         String responseString = new Gson().toJson(patientService.getPatient(patientIdOrSerialNo));
-        sendResponse(responseString, response);
+        Utility.sendResponse(responseString, response);
 
     }
 
@@ -87,15 +85,10 @@ public class PatientController extends HttpServlet {
             String contact = request.getParameter("contact");
             String email = request.getParameter("email");
             String age = request.getParameter("age");
-            //String admitDateStr = request.getParameter("admitDate");
-            //String admittedBy = request.getParameter("admittedBy");
+
             //String dischargeDateStr = request.getParameter("dischargeDate");
             //String dischargeBy = request.getParameter("dischargeBy");
-
-            /*java.util.Date _admitDate = new SimpleDateFormat("yyyy-MM-dd").parse(admitDateStr);
-            java.sql.Date admitDate = new java.sql.Date(_admitDate.getTime());
-
-            java.util.Date _dischargeDate = new SimpleDateFormat("yyyy-MM-dd").parse(dischargeDateStr);
+            /*java.util.Date _dischargeDate = new SimpleDateFormat("yyyy-MM-dd").parse(dischargeDateStr);
             java.sql.Date dischargeDate = new java.sql.Date(_dischargeDate.getTime());*/
 
             Patient patient = new Patient();
@@ -121,22 +114,77 @@ public class PatientController extends HttpServlet {
                 resp = "Something went wrong";
             }
 
-            sendResponse(resp, response);
+            Utility.sendResponse(resp, response);
         }
         catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void sendResponse(String data, HttpServletResponse resp) throws IOException
-    {
-        resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
-        PrintWriter writer = resp.getWriter();
-        JsonObject json = new JsonObject();
-        json.addProperty("Data", data);
-        writer.print(json.toString());
-        writer.flush();
+
+    private void admitPatient(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String resp;
+        try{
+            String patientId = request.getParameter("patient_id");
+            String severityLevel = request.getParameter("severity_level");
+            String admitDateStr = request.getParameter("admit_date");
+            String admittedBy = request.getParameter("admitted_by");
+
+            java.util.Date _admitDate = new SimpleDateFormat("yyyy-MM-dd").parse(admitDateStr);
+            java.sql.Date admitDate = new java.sql.Date(_admitDate.getTime());
+
+            Patient patient = patientService.getPatient(patientId);
+
+            patient.setSeverityLevel(SeverityLevel.valueOf(severityLevel));
+            patient.setAdmitDate(admitDate);
+            patient.setAdmittedBy(Integer.parseInt(admittedBy));
+
+            boolean status = patientService.admitPatient(patient);
+
+            if(status){
+                resp = "Patient admitted successfully";
+            }
+            else{
+                resp = "Something went wrong";
+            }
+        }
+        catch (Exception e){
+            resp = "Something went wrong";
+            e.printStackTrace();
+        }
+        Utility.sendResponse(resp, response);
+    }
+
+    private void dischargePatient(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String resp;
+        try{
+            String patientId = request.getParameter("patient_id");
+            String dischargeDateStr = request.getParameter("discharge_date");
+            String dischargedBy = request.getParameter("discharged_by");
+
+            java.util.Date _dischargeDate = new SimpleDateFormat("yyyy-MM-dd").parse(dischargeDateStr);
+            java.sql.Date dischargeDate = new java.sql.Date(_dischargeDate.getTime());
+
+            Patient patient = patientService.getPatient(patientId);
+
+            patient.setSeverityLevel(SeverityLevel.RECOVERED);
+            patient.setDischargeDate(dischargeDate);
+            patient.setDischargedBy(Integer.parseInt(dischargedBy));
+
+            boolean status = patientService.dischargePatient(patient);
+
+            if(status){
+                resp = "Patient discharged successfully";
+            }
+            else{
+                resp = "Something went wrong";
+            }
+        }
+        catch (Exception e){
+            resp = "Something went wrong";
+            e.printStackTrace();
+        }
+        Utility.sendResponse(resp, response);
     }
 
 }
