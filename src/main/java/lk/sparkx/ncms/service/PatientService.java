@@ -9,11 +9,11 @@ import lk.sparkx.ncms.repository.PatientRepository;
 import lk.sparkx.ncms.utils.Helper;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class PatientService implements PatientRepository {
+
+    HospitalService hospitalService = new HospitalService();
 
     @Override
     public boolean registerPatient(Patient patient) {
@@ -21,24 +21,35 @@ public class PatientService implements PatientRepository {
         PreparedStatement stmt = null;
         try
         {
-            UUID uuid = UUID.randomUUID();
-
             con = DBConnectionPool.getInstance().getConnection();
+
             stmt = con.prepareStatement(Helper.INSERT_PATIENT);
-            stmt.setString(1, uuid.toString());
-            stmt.setString(2, generatePatientSerialNo());
-            stmt.setString(3, patient.getFirstName());
-            stmt.setString(4, patient.getLastName());
-            stmt.setString(5, patient.getDistrict());
-            stmt.setInt(6, patient.getLocationX());
-            stmt.setInt(7, patient.getLocationY());
-            stmt.setString(8, patient.getSeverityLevel().getName());
-            stmt.setString(9, patient.getGender().getName());
-            stmt.setString(10, patient.getContact());
-            stmt.setString(11, patient.getEmail());
-            stmt.setInt(12, patient.getAge());
+
+            String patientId = generatePatientSerialNo();
+
+            stmt.setString(1, patientId);
+            stmt.setString(2, patient.getFirstName());
+            stmt.setString(3, patient.getLastName());
+            stmt.setString(4, patient.getDistrict());
+            stmt.setInt(5, patient.getLocationX());
+            stmt.setInt(6, patient.getLocationY());
+            stmt.setString(7, patient.getSeverityLevel().getName());
+            stmt.setString(8, patient.getGender().getName());
+            stmt.setString(9, patient.getContact());
+            stmt.setString(10, patient.getEmail());
+            stmt.setInt(11, patient.getAge());
+
             int changedRows = stmt.executeUpdate();
-            return (changedRows == 1);
+
+            int nearestAvailableHospital = this.getNearestAvailableHospital(patient.getLocationX(), patient.getLocationY());
+
+            if(nearestAvailableHospital == 0){
+                stmt = con.prepareStatement(Helper.ADD_PATIENT_TO_QUEUE);
+                stmt.setString(1, patientId);
+                changedRows += stmt.executeUpdate();
+            }
+
+            return (changedRows == 1 || changedRows == 2);
         }
         catch(SQLException e)
         {
@@ -72,12 +83,13 @@ public class PatientService implements PatientRepository {
 
 
             String patientSerialNoPrepStr = Helper.PATIENT_SERIAL_NO_PREP;
+            int year = Calendar.getInstance().get(Calendar.YEAR);
 
             if(patientCount == 0){
-                patientSerialNo = patientSerialNoPrepStr  + 1;
+                patientSerialNo = year + "/" + patientSerialNoPrepStr  + 1;
             }
             else{
-                patientSerialNo = patientSerialNoPrepStr  + patientCount;
+                patientSerialNo = year + "/" + patientSerialNoPrepStr  + patientCount;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -87,7 +99,7 @@ public class PatientService implements PatientRepository {
     }
 
     @Override
-    public Patient getPatient(String patientIdOrSerialNo) {
+    public Patient getPatient(String patientId) {
         ResultSet rs = null;
         Connection con = null;
         PreparedStatement stmt = null;
@@ -96,15 +108,13 @@ public class PatientService implements PatientRepository {
             con = DBConnectionPool.getInstance().getConnection();
 
             stmt = con.prepareStatement(Helper.GET_PATIENT_DETAILS);
-            stmt.setString(1, patientIdOrSerialNo);
-            stmt.setString(2, patientIdOrSerialNo);
+            stmt.setString(1, patientId);
 
             rs = stmt.executeQuery();
 
             if(rs.next()){
                 patient = new Patient();
                 patient.setId(rs.getString("id"));
-                patient.setSerialNo(rs.getString("serial_no"));
                 patient.setFirstName(rs.getString("first_name"));
                 patient.setLastName(rs.getString("last_name"));
                 patient.setDistrict(rs.getString("district"));
@@ -144,7 +154,6 @@ public class PatientService implements PatientRepository {
             if(rs.next()){
                 patient = new Patient();
                 patient.setId(rs.getString("id"));
-                patient.setSerialNo(rs.getString("serial_no"));
                 patient.setFirstName(rs.getString("first_name"));
                 patient.setLastName(rs.getString("last_name"));
                 patient.setDistrict(rs.getString("district"));
@@ -166,5 +175,50 @@ public class PatientService implements PatientRepository {
         }
 
         return patientList;
+    }
+
+    public int getNearestAvailableHospital(int patientLocX, int patientLocY){
+
+        List<String> availableHospitals = hospitalService.getAvailableHospitals();
+
+        if(availableHospitals.size() != 0){
+            Map<Integer, int[]> coordinates = null;
+
+            for (String id: availableHospitals) {
+                coordinates = hospitalService.getHospitalCoordinates(id);
+            }
+
+            Map<Integer, Double> distances = new HashMap<>();
+
+            assert coordinates != null;
+            for (Map.Entry<Integer, int[]> entry: coordinates.entrySet()) {
+                distances.put(entry.getKey(), Math.sqrt((entry.getValue()[0]-patientLocX)*(entry.getValue()[0]-patientLocX) + (entry.getValue()[1]-patientLocY)*(entry.getValue()[1]-patientLocY)));
+            }
+
+            // Create a list from elements of HashMap
+            List<Map.Entry<Integer, Double> > list = new LinkedList<Map.Entry<Integer, Double> >(distances.entrySet());
+
+            // Sort the list
+            Collections.sort(list, new Comparator<Map.Entry<Integer, Double> >() {
+                public int compare(Map.Entry<Integer, Double> o1, Map.Entry<Integer, Double> o2)
+                {
+                    return (o1.getValue()).compareTo(o2.getValue());
+                }
+            });
+
+            // put data from sorted list to hashmap
+            LinkedHashMap<Integer, Double> temp = new LinkedHashMap<Integer, Double>();
+            for (Map.Entry<Integer, Double> aa : list) {
+                temp.put(aa.getKey(), aa.getValue());
+            }
+
+            Map.Entry<Integer, Double> entry = temp.entrySet().iterator().next();
+
+            return entry.getKey();
+        }
+        else{
+            return 0;
+        }
+
     }
 }

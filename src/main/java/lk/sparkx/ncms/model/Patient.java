@@ -7,7 +7,6 @@ import java.util.Date;
 @Getter @Setter
 public class Patient {
     private String id;
-    private String serialNo;
     private String firstName;
     private String lastName;
     private String district;
