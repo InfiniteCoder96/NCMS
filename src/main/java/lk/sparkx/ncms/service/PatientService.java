@@ -1,6 +1,5 @@
 package lk.sparkx.ncms.service;
 
-import com.google.gson.JsonElement;
 import lk.sparkx.ncms.controller.db.DBConnectionPool;
 import lk.sparkx.ncms.model.Gender;
 import lk.sparkx.ncms.model.Patient;
@@ -48,8 +47,14 @@ public class PatientService implements PatientRepository {
                 stmt.setString(1, patientId);
                 changedRows += stmt.executeUpdate();
             }
+            else {
+                stmt = con.prepareStatement(Helper.ALLOCATE_PATIENT_A_BED);
+                stmt.setString(1, String.valueOf(nearestAvailableHospital));
+                stmt.setString(2, patientId);
+                changedRows += stmt.executeUpdate();
+            }
 
-            return (changedRows == 1 || changedRows == 2);
+            return (changedRows == 1 || changedRows == 2 || changedRows == 3);
         }
         catch(SQLException e)
         {
@@ -81,15 +86,14 @@ public class PatientService implements PatientRepository {
                 patientCount = Integer.parseInt(rs.getString("PATIENT_COUNT"));
             }
 
-
             String patientSerialNoPrepStr = Helper.PATIENT_SERIAL_NO_PREP;
             int year = Calendar.getInstance().get(Calendar.YEAR);
 
             if(patientCount == 0){
-                patientSerialNo = year + "/" + patientSerialNoPrepStr  + 1;
+                patientSerialNo = year + "/" + patientSerialNoPrepStr  + "/" + 1;
             }
             else{
-                patientSerialNo = year + "/" + patientSerialNoPrepStr  + patientCount;
+                patientSerialNo = year + "/" + patientSerialNoPrepStr  + "/" + (patientCount + 1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -179,46 +183,57 @@ public class PatientService implements PatientRepository {
 
     public int getNearestAvailableHospital(int patientLocX, int patientLocY){
 
-        List<String> availableHospitals = hospitalService.getAvailableHospitals();
-
-        if(availableHospitals.size() != 0){
-            Map<Integer, int[]> coordinates = null;
-
-            for (String id: availableHospitals) {
-                coordinates = hospitalService.getHospitalCoordinates(id);
-            }
-
-            Map<Integer, Double> distances = new HashMap<>();
-
-            assert coordinates != null;
-            for (Map.Entry<Integer, int[]> entry: coordinates.entrySet()) {
-                distances.put(entry.getKey(), Math.sqrt((entry.getValue()[0]-patientLocX)*(entry.getValue()[0]-patientLocX) + (entry.getValue()[1]-patientLocY)*(entry.getValue()[1]-patientLocY)));
-            }
-
-            // Create a list from elements of HashMap
-            List<Map.Entry<Integer, Double> > list = new LinkedList<Map.Entry<Integer, Double> >(distances.entrySet());
-
-            // Sort the list
-            Collections.sort(list, new Comparator<Map.Entry<Integer, Double> >() {
-                public int compare(Map.Entry<Integer, Double> o1, Map.Entry<Integer, Double> o2)
-                {
-                    return (o1.getValue()).compareTo(o2.getValue());
-                }
-            });
-
-            // put data from sorted list to hashmap
-            LinkedHashMap<Integer, Double> temp = new LinkedHashMap<Integer, Double>();
-            for (Map.Entry<Integer, Double> aa : list) {
-                temp.put(aa.getKey(), aa.getValue());
-            }
-
-            Map.Entry<Integer, Double> entry = temp.entrySet().iterator().next();
-
-            return entry.getKey();
+        if(hospitalService.checkHospitalBedsTableEmpty()){
+            Map<Integer, int[]> coordinates = hospitalService.getAllHospitalCoordinates();
+            return getNearestHospital(coordinates, patientLocX, patientLocY);
         }
         else{
-            return 0;
+            List<String> availableHospitals = hospitalService.getAvailableHospitals();
+
+            System.out.println(availableHospitals);
+
+            if(availableHospitals.size() != 0){
+                Map<Integer, int[]> coordinates = null;
+
+                for (String id: availableHospitals) {
+                    coordinates = hospitalService.getHospitalCoordinates(id);
+                }
+
+                return getNearestHospital(coordinates, patientLocX, patientLocY);
+            }
+            else{
+                return 0;
+            }
+        }
+    }
+
+    private int getNearestHospital(Map<Integer, int[]> coordinates, int patientLocX, int patientLocY){
+        Map<Integer, Double> distances = new HashMap<>();
+
+        assert coordinates != null;
+        for (Map.Entry<Integer, int[]> entry: coordinates.entrySet()) {
+            distances.put(entry.getKey(), Math.sqrt((entry.getValue()[0]-patientLocX)*(entry.getValue()[0]-patientLocX) + (entry.getValue()[1]-patientLocY)*(entry.getValue()[1]-patientLocY)));
         }
 
+        // Create a list from elements of HashMap
+        List<Map.Entry<Integer, Double> > list = new LinkedList<Map.Entry<Integer, Double> >(distances.entrySet());
+
+        // Sort the list
+        Collections.sort(list, new Comparator<Map.Entry<Integer, Double> >() {
+            public int compare(Map.Entry<Integer, Double> o1, Map.Entry<Integer, Double> o2)
+            {
+                return (o1.getValue()).compareTo(o2.getValue());
+            }
+        });
+
+        // put data from sorted list to hashmap
+        LinkedHashMap<Integer, Double> temp = new LinkedHashMap<Integer, Double>();
+        for (Map.Entry<Integer, Double> aa : list) {
+            temp.put(aa.getKey(), aa.getValue());
+        }
+
+        Map.Entry<Integer, Double> entry = temp.entrySet().iterator().next();
+
+        return entry.getKey();
     }
 }

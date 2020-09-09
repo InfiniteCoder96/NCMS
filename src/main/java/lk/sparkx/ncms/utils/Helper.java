@@ -32,18 +32,22 @@ public class Helper {
     public static final String CREATE_PATIENTS_TABLE =  "CREATE TABLE IF NOT EXISTS " + TABLE_PATIENTS + " (`id` VARCHAR(50) NOT NULL,`serial_no` VARCHAR(10) NULL,`first_name` VARCHAR(100) NULL,`last_name` VARCHAR(100) NULL,`district` VARCHAR(10) NULL,`location_x` INT NULL,`location_y` INT NULL,`severity_level` VARCHAR(50) NULL,`gender` VARCHAR(10) NULL,`contact` VARCHAR(45) NULL,`email` VARCHAR(45) NULL,`age` INT NULL,`admit_date` DATE NULL,`admitted_by` VARCHAR(45) NULL,`discharge_date` DATE NULL,`discharged_by` VARCHAR(45) NULL,PRIMARY KEY (`id`),FOREIGN KEY (`admitted_by`) REFERENCES `doctor` (`id`),FOREIGN KEY (`discharged_by`) REFERENCES `doctor` (`id`));";
     public static final String CREATE_HOSPITAL_BEDS_TABLE =  "CREATE TABLE IF NOT EXISTS " + TABLE_HOSPITAL_BED + " (`id` INT NOT NULL,`hospital_id` VARCHAR(50) NOT NULL,`patient_id` VARCHAR(50) NULL,PRIMARY KEY (`id`, `hospital_id`),FOREIGN KEY (`hospital_id`) REFERENCES `hospital` (`id`),FOREIGN KEY (`patient_id`) REFERENCES `patient` (`id`));";
     public static final String CREATE_PATIENT_QUEUE_TABLE =  "CREATE TABLE IF NOT EXISTS " + TABLE_PATIENT_QUEUE + " (`id` INT NOT NULL,`patient_id` VARCHAR(50) NOT NULL,PRIMARY KEY (`id`),FOREIGN KEY (`patient_id`) REFERENCES `patient` (`id`) ON DELETE CASCADE);";
-    public static final String CREATE_USERS_TABLE =  "CREATE TABLE IF NOT EXISTS " + TABLE_USERS + " (`username` VARCHAR(50) NOT NULL,`password` VARCHAR(100) NULL,`name` VARCHAR(100) NULL,`moh` TINYINT NULL,`hospital` TINYINT NULL,PRIMARY KEY (`username`));";
+    public static final String CREATE_USERS_TABLE =  "CREATE TABLE IF NOT EXISTS" + TABLE_USERS + " (`username` VARCHAR(50) NOT NULL,`password` VARCHAR(100) NULL,`name` VARCHAR(100) NULL,`moh` TINYINT NULL,`hospital` TINYINT NULL,PRIMARY KEY (`username`));";
 
     // Patient Queries
     public static final String INSERT_PATIENT = "INSERT INTO "+ TABLE_PATIENTS +" (id, first_name, last_name, district, location_x, location_y, severity_level, gender, contact, email, age) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
     public static final String GET_PATIENT_COUNT = "SELECT COUNT(id) AS PATIENT_COUNT FROM " + TABLE_PATIENTS;
     public static final String GET_PATIENT_DETAILS = "SELECT * FROM " + TABLE_PATIENTS + " WHERE id=?";
     public static final String GET_ALL_ACTIVE_PATIENTS = "SELECT * FROM " + TABLE_PATIENTS;
+    public static final String ALLOCATE_PATIENT_A_BED = "INSERT INTO " + TABLE_HOSPITAL_BED + " (hospital_id, patient_id) VALUES (?,?)";
     public static final String ADD_PATIENT_TO_QUEUE = "INSERT INTO " + TABLE_PATIENT_QUEUE + " (patient_id) VALUES (?)";
 
     // Hospital Queries
-    public static final String GET_HOSPITAL_LOCATION = "SELECT location_x, location_y FROM " + TABLE_HOSPITALS + " WHERE id";
+    public static final String ADD_NEW_HOSPITAL = "INSERT INTO " + TABLE_HOSPITALS + " (name, district, location_x, location_y, build_date) VALUES (?,?,?,?,?,?)";
+    public static final String GET_HOSPITAL_LOCATION = "SELECT location_x, location_y FROM " + TABLE_HOSPITALS + " WHERE id=?";
+    public static final String GET_ALL_HOSPITAL_LOCATIONS = "SELECT id, location_x, location_y FROM " + TABLE_HOSPITALS;
 
     // Hospital Bed Queries
+    public static final String CHECK_TABLE_IS_EMPTY = "SELECT COUNT(*) AS rows FROM " + TABLE_HOSPITAL_BED;
     public static final String GET_AVAILABLE_HOSPITALS = "SELECT COUNT(*) AS beds, hospital_id  FROM " + TABLE_HOSPITAL_BED + " GROUP BY hospital_id HAVING COUNT(*) < 10";
 }
