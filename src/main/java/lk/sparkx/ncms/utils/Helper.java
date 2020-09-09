@@ -35,7 +35,8 @@ public class Helper {
     public static final String CREATE_USERS_TABLE =  "CREATE TABLE IF NOT EXISTS " + TABLE_USERS + " (`username` VARCHAR(50) NOT NULL,`password` VARCHAR(100) NULL,`name` VARCHAR(100) NULL,`moh` TINYINT NULL,`hospital` TINYINT NULL,PRIMARY KEY (`username`));";
 
     // Patient Queries
-    public static final String INSERT_PATIENT = "INSERT INTO "+ TABLE_PATIENTS +" (id, serial_no, first_name, last_name, district, location_x, location_y, gender, contact, email, age) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+    public static final String INSERT_PATIENT = "INSERT INTO "+ TABLE_PATIENTS +" (id, serial_no, first_name, last_name, district, location_x, location_y, severity_level, gender, contact, email, age) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
     public static final String GET_PATIENT_COUNT = "SELECT COUNT(id) AS PATIENT_COUNT FROM " + TABLE_PATIENTS;
     public static final String GET_PATIENT_DETAILS = "SELECT * FROM " + TABLE_PATIENTS + " WHERE id=? OR serial_no=?";
+    public static final String GET_ALL_ACTIVE_PATIENTS = "SELECT * FROM " + TABLE_PATIENTS;
 }
