@@ -20,6 +20,7 @@ public class PatientController extends HttpServlet {
 
     private final PatientService patientService = new PatientService();
 
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             String Command = request.getParameter("command");
@@ -28,13 +29,6 @@ public class PatientController extends HttpServlet {
                 case "REGISTER_PATIENT":
                    registerPatient(request,response);
                    break;
-                case "ADMIT_PATIENT":
-                    admitPatient(request,response);
-                    break;
-                case "DISCHARGE_PATIENT":
-                    dischargePatient(request,response);
-                    break;
-
             }
         }
         catch(Exception e) {
@@ -42,6 +36,7 @@ public class PatientController extends HttpServlet {
         }
     }
 
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             String Command = request.getParameter("command");
@@ -52,6 +47,27 @@ public class PatientController extends HttpServlet {
                     break;
                 case "GET_ALL_ACTIVE_PATIENTS":
                     getAllActivePatients(request,response);
+                    break;
+                default:
+                    getAllActivePatients(request,response);
+            }
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            String Command = request.getParameter("command");
+
+            switch(Command){
+                case "ADMIT_PATIENT":
+                    admitPatient(request,response);
+                    break;
+                case "DISCHARGE_PATIENT":
+                    dischargePatient(request,response);
                     break;
             }
         }
@@ -66,11 +82,9 @@ public class PatientController extends HttpServlet {
     }
 
     private void getPatient(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
         String patientIdOrSerialNo = request.getParameter("patientId");
         String responseString = new Gson().toJson(patientService.getPatient(patientIdOrSerialNo));
         Utility.sendResponse(responseString, response);
-
     }
 
     private void registerPatient(HttpServletRequest request, HttpServletResponse response) {
@@ -85,11 +99,6 @@ public class PatientController extends HttpServlet {
             String contact = request.getParameter("contact");
             String email = request.getParameter("email");
             String age = request.getParameter("age");
-
-            //String dischargeDateStr = request.getParameter("dischargeDate");
-            //String dischargeBy = request.getParameter("dischargeBy");
-            /*java.util.Date _dischargeDate = new SimpleDateFormat("yyyy-MM-dd").parse(dischargeDateStr);
-            java.sql.Date dischargeDate = new java.sql.Date(_dischargeDate.getTime());*/
 
             Patient patient = new Patient();
             patient.setFirstName(patientFName);
@@ -120,7 +129,6 @@ public class PatientController extends HttpServlet {
             e.printStackTrace();
         }
     }
-
 
     private void admitPatient(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String resp;
