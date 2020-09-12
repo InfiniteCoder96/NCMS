@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.UUID;
 
 @WebServlet(name = "Hospital")
 public class HospitalController extends HttpServlet {

@@ -2,7 +2,6 @@ package lk.sparkx.ncms.controller;
 
 
 import lk.sparkx.ncms.model.Doctor;
-import lk.sparkx.ncms.model.Hospital;
 import lk.sparkx.ncms.service.DoctorService;
 import lk.sparkx.ncms.utils.Utility;
 
@@ -12,7 +11,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 
 @WebServlet(name = "Doctor")
 public class DoctorController extends HttpServlet {

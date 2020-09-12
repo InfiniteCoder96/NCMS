@@ -8,7 +8,6 @@ import lk.sparkx.ncms.repository.PatientRepository;
 import lk.sparkx.ncms.utils.Helper;
 
 import java.sql.*;
-import java.sql.Date;
 import java.util.*;
 
 public class PatientService implements PatientRepository {

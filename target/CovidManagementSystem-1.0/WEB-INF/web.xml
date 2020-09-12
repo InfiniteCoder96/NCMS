@@ -5,6 +5,11 @@
          version="4.0">
 
     <servlet>
+        <servlet-name>Statistics</servlet-name>
+        <servlet-class>lk.sparkx.ncms.controller.StatisticsController</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>DBMigration</servlet-name>
         <servlet-class>lk.sparkx.ncms.controller.db.DBController</servlet-class>
     </servlet>
@@ -43,6 +48,11 @@
     <servlet-mapping>
         <servlet-name>Doctor</servlet-name>
         <url-pattern>/doctors/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>Statistics</servlet-name>
+        <url-pattern>/*</url-pattern>
     </servlet-mapping>
 
 </web-app>
